@@ -1,0 +1,33 @@
+
+/**
+ * Module dependencies.
+ */
+
+require('./response');
+
+var express = require('express')
+  , app = module.exports = express()
+
+app.configure(function(){
+  app.use(express.logger('dev'));
+  app.use(express.compress());
+  app.use(app.router);
+
+});
+
+app.configure('development', function () {
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function () {
+  app.use(express.errorHandler());
+});
+
+//Montage de l'api REST sur /
+app.use('/', app.bookmarks_app = require('./yopnote-restAPI')());
+
+if (module.parent === null) {
+  app.listen(3000);
+  //console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+  console.log("Express server start");
+}
