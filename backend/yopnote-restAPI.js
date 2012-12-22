@@ -1,7 +1,8 @@
 var express = require('express')
 	, m = require('./middleware')
 	, folder = require('./routes/folder')
-	, note = require('./routes/note');
+	, note = require('./routes/note')
+	, CONFIG = require('config').YopnoteAPI;
 
 // Instanciated module
 
@@ -57,4 +58,4 @@ exports.middlewares = m;
 
  
 // Start when main module
-if (module.parent == null) module.exports().listen(3000);
+if (module.parent == null) module.exports().listen(CONFIG.appPort);

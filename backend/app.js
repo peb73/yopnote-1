@@ -4,6 +4,7 @@
  */
 
 require('./response');
+var CONFIG = require('config').YopnoteAPI;
 
 var express = require('express')
   , app = module.exports = express()
@@ -27,7 +28,7 @@ app.configure('production', function () {
 app.use('/', app.bookmarks_app = require('./yopnote-restAPI')());
 
 if (module.parent === null) {
-  app.listen(3000);
+  app.listen(CONFIG.appPort);
   //console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
   console.log("Express server start");
 }
