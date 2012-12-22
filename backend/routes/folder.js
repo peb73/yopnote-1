@@ -1,29 +1,31 @@
 
 var MongoClient = require('mongodb').MongoClient,
 	Server = require('mongodb').Server,
-	db = require('../db');
+	CONFIG = require('config').YopnoteAPI;
 
 var collectionName = "folder";
-var mongoclient = new MongoClient(new Server(db.serverUrl, db.port, {native_parser: true}));
+var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
 
 /**
  * Folder controller
  */
 exports.list = function(req, res){
 
-	console.log(process.env);
+	console.log(CONFIG);
 	mongoclient.open(function(err, mongoclient){
 		
 		if(err!=null){
 			res.respond(err,500);
+			mongoclient.close();
 			return;
 		}
 
-		var dataBase = mongoclient.db(db.dbName);
+		var dataBase = mongoclient.db(CONFIG.dbName);
 		dataBase.collection(collectionName).find().toArray(function(err, docs){
 		
 			if(err!=null){
 				res.respond(err,500);
+				mongoclient.close();
 				return;
 			}
 
