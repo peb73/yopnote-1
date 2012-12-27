@@ -56,14 +56,29 @@ exports.get = function(req, res, hash){
 
 			//No result
 			if(doc==null){
-				res.respond("No folder found",404);
-				mongoclient.close();
-				return;x
-			}
+				dataBase.collection(collectionName).insert(
+					{
+						name: hash,
+						hash: hash
+					},
+					function(err,doc){
+						if(err!=null){
+							res.respond(err,500);
+							mongoclient.close();
+							return;
+						}
 
-			//return result
-			res.json(doc);
-			mongoclient.close();
+						res.json(doc);
+						mongoclient.close();
+					}
+				);
+				//res.respond("No folder found",404);
+				//return;
+			}else{
+				//return result
+				res.json(doc);
+				mongoclient.close();
+			}
 		});
 
 	});
