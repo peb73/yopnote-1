@@ -71,6 +71,43 @@ exports.get = function(req, res, hash){
 };
 exports.put = function(req, res, id){
 	res.respond("Not Yet Implemented",501);
+
+	//Control hash param
+	if(req.body.hash == null || req.body.hash == ""){
+		res.respond("hash param could not be null",412);
+		return;
+	}
+	var hash = req.body.hash;
+
+	//Control name param
+	if(req.body.name == null || req.body.name == ""){
+		res.respond("hash param could not be null",412);
+		return;
+	}
+	var name = req.body.name;
+
+	mogoclient.open(function(err,mongoclient){
+		if(err!=null){
+			res.respond(err,500);
+			mongoclient.close();
+			return;
+		}
+
+		var dataBase = mongoclient.db(CONFIG.dbName);
+		dataBase.collection(collectionName).update({"_id":id},{$set:{hash:hash,name:name}},function(err,doc){
+			if(err!=null){
+				res.respond(err,500);
+				mongoclient.clode();
+				return;
+			}
+
+			//return result
+			res.json(doc);
+			mongoclient.close();
+		});
+
+	});
+
 };
 exports.post = function(req, res){
 
@@ -95,7 +132,11 @@ exports.post = function(req, res){
 		}
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
+		
 		//TODO post
+		mongoclient.close();
 	});
+	
+	//TODO à supprimer
 	//res.respond("Not Yet Implemented",501);
 };
