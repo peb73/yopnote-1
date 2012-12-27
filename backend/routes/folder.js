@@ -73,11 +73,13 @@ exports.put = function(req, res, id){
 	res.respond("Not Yet Implemented",501);
 
 	//Control hash param
+	/*
 	if(req.body.hash == null || req.body.hash == ""){
 		res.respond("hash param could not be null",412);
 		return;
 	}
 	var hash = req.body.hash;
+	*/
 
 	//Control name param
 	if(req.body.name == null || req.body.name == ""){
@@ -94,17 +96,25 @@ exports.put = function(req, res, id){
 		}
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
-		dataBase.collection(collectionName).update({"_id":id},{$set:{hash:hash,name:name}},function(err,doc){
-			if(err!=null){
-				res.respond(err,500);
-				mongoclient.clode();
-				return;
-			}
+		dataBase.collection(collectionName).update(
+			{"_id":id},
+			{
+				$set:{
+					/*hash:hash,*/
+					name:name
+				}
+			},
+			function(err,doc){
+				if(err!=null){
+					res.respond(err,500);
+					mongoclient.clode();
+					return;
+				}
 
-			//return result
-			res.json(doc);
-			mongoclient.close();
-		});
+				//return result
+				res.json(doc);
+				mongoclient.close();
+			});
 
 	});
 
@@ -123,6 +133,7 @@ exports.post = function(req, res){
 	var name = req.body.name;
 
 	//TODO calcul du hash
+	var hash = "hash";
 
 	mongoclient.open(function(err, mongoclient){
 		if(err!=null){
@@ -132,11 +143,20 @@ exports.post = function(req, res){
 		}
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
-		
-		//TODO post
-		mongoclient.close();
+		dataBase.collection(collectionName).insert({
+			name 	: name,
+			hash 	: hash,
+			private : private
+		},function(err,result){
+			if(err!=null){
+				res.respond(err,500);
+				mongoclient.close();
+				return;
+			}
+
+			//return result
+			res.json(result);
+			mongoclient.close();
+		});
 	});
-	
-	//TODO à supprimer
-	//res.respond("Not Yet Implemented",501);
 };
