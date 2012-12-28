@@ -1,7 +1,8 @@
 
 var MongoClient = require('mongodb').MongoClient,
-	Server = require('mongodb').Server,
-	CONFIG = require('config').YopnoteAPI;
+	Server 		= require('mongodb').Server,
+	CONFIG 		= require('config').YopnoteAPI,
+	utils 		= require('../util');
 
 var collectionName = "folder";
 var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
@@ -112,11 +113,11 @@ exports.put = function(req, res, id){
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
 		dataBase.collection(collectionName).update(
-			{"_id":id},
+			{_id: id},
 			{
 				$set:{
-					/*hash:hash,*/
-					name:name
+					//hash: hash,
+					name: name
 				}
 			},
 			function(err,doc){
@@ -147,9 +148,7 @@ exports.post = function(req, res){
 
 	var name = req.body.name;
 
-	//TODO calcul du hash
-	var hash = "hash";
-
+	//TODO id incrementation
 	mongoclient.open(function(err, mongoclient){
 		if(err!=null){
 			res.respond(err,500);
@@ -160,7 +159,6 @@ exports.post = function(req, res){
 		var dataBase = mongoclient.db(CONFIG.dbName);
 		dataBase.collection(collectionName).insert({
 			name 	: name,
-			hash 	: hash,
 			private : private
 		},function(err,result){
 			if(err!=null){
@@ -169,9 +167,23 @@ exports.post = function(req, res){
 				return;
 			}
 
-			//return result
-			res.json(result);
-			mongoclient.close();
+			dataBase.collection(collectionName).update(
+				result,
+				{
+					$set:{hash:util.getHash(result._id)}
+				},
+				function(result,err){
+					if(err!=null){
+						res.respond(err,500);
+						mongoclient.close();
+						return;
+					}
+
+					//return result
+					res.json(result);
+					mongoclient.close();
+				}
+			);
 		});
 	});
 };
