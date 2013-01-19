@@ -7,6 +7,89 @@ var MongoClient = require('mongodb').MongoClient,
 var collectionName = "folder";
 var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
 
+var insertFolder = function(res,mongoclient, dataBase, name, private,hash){
+	dataBase.collection(collectionName).insert({
+			name 	: name,
+			private : private
+		},function(err,result){
+			if(err!=null){
+				res.respond(err,500);
+				mongoclient.close();
+				return;
+		}
+
+		var tmpId = result._id;
+		if(hash==null)
+			hash = utils.getHash(tmpId);
+
+		//Test to know id the hash has not been ever use.
+		dataBase.collection(collectionName).findOne({hash: hash},function(err,doc){
+
+			//Error
+			if(err!=null){
+				res.respond(err,500);
+				mongoclient.close();
+				return;
+			}
+
+			//No result
+			if(doc==null){
+
+				//keep this id
+				dataBase.collection(collectionName).update(
+					result[0],
+					{
+						$set:{hash:hash}
+					},
+					function(err,count){
+
+						if(err!=null){
+							res.respond(err,500);
+							mongoclient.close();
+							return;
+						}
+
+						result[0].hash = hash;
+						res.json(filtreResult(result[0]));
+
+						mongoclient.close();
+					}
+				);
+			}else{
+				//change the id
+
+				//clean old id
+				dataBase.collection(collectionName).remove(
+					{
+						_id: tmpId
+					},
+					function(result,err){
+
+						if(err!=null){
+							res.respond(err,500);
+							mongoclient.close();
+							return;
+						}
+
+						insertFolder(res,mongoclient, dataBase, name, private,hash);
+					}
+				);
+			}
+		});
+	});
+}
+
+var filtreResult = function(input){
+	if(input.toString()== '[object Object]'){
+		delete input._id;
+	}else{
+		for(var i=0; i<input.length;i++){
+			filtreResult(input[i]);
+		}
+	}
+	return input;
+}
+
 /**
  * Folder controller
  */
@@ -16,7 +99,8 @@ exports.list = function(req, res){
 		
 		if(err!=null){
 			res.respond(err,500);
-			mongoclient.close();
+			if (mongoclient!=null)
+				mongoclient.close();
 			return;
 		}
 
@@ -29,7 +113,7 @@ exports.list = function(req, res){
 				return;
 			}
 
-			res.json(docs);
+			res.json(filtreResult(docs));
 			mongoclient.close();
 		});
 	});
@@ -41,7 +125,8 @@ exports.get = function(req, res, hash){
 
 		if(err!=null){
 			res.respond(err,500);
-			mongoclient.close();
+			if (mongoclient!=null)
+				mongoclient.close();
 			return;
 		}
 
@@ -57,27 +142,14 @@ exports.get = function(req, res, hash){
 
 			//No result
 			if(doc==null){
-				dataBase.collection(collectionName).insert(
-					{
-						name: hash,
-						hash: hash
-					},
-					function(err,doc){
-						if(err!=null){
-							res.respond(err,500);
-							mongoclient.close();
-							return;
-						}
+				//create folder with hash
+				var name = hash;
+				var private = false;
+				insertFolder(res,mongoclient, dataBase, name, private,hash);
 
-						res.json(doc);
-						mongoclient.close();
-					}
-				);
-				//res.respond("No folder found",404);
-				//return;
 			}else{
 				//return result
-				res.json(doc);
+				res.json(filtreResult(doc));
 				mongoclient.close();
 			}
 		});
@@ -107,7 +179,8 @@ exports.put = function(req, res, id){
 	mogoclient.open(function(err,mongoclient){
 		if(err!=null){
 			res.respond(err,500);
-			mongoclient.close();
+			if (mongoclient!=null)
+				mongoclient.close();
 			return;
 		}
 
@@ -120,7 +193,7 @@ exports.put = function(req, res, id){
 					name: name
 				}
 			},
-			function(err,doc){
+			function(err,count){
 				if(err!=null){
 					res.respond(err,500);
 					mongoclient.clode();
@@ -128,7 +201,7 @@ exports.put = function(req, res, id){
 				}
 
 				//return result
-				res.json(doc);
+				res.json(filtreResult(doc));
 				mongoclient.close();
 			});
 
@@ -152,38 +225,15 @@ exports.post = function(req, res){
 	mongoclient.open(function(err, mongoclient){
 		if(err!=null){
 			res.respond(err,500);
-			mongoclient.close();
+			if (mongoclient!=null)
+				mongoclient.close();
 			return;
 		}
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
-		dataBase.collection(collectionName).insert({
-			name 	: name,
-			private : private
-		},function(err,result){
-			if(err!=null){
-				res.respond(err,500);
-				mongoclient.close();
-				return;
-			}
+		var hash = null;
 
-			dataBase.collection(collectionName).update(
-				result,
-				{
-					$set:{hash:util.getHash(result._id)}
-				},
-				function(result,err){
-					if(err!=null){
-						res.respond(err,500);
-						mongoclient.close();
-						return;
-					}
+		insertFolder(res,mongoclient, dataBase, name, private,hash);
 
-					//return result
-					res.json(result);
-					mongoclient.close();
-				}
-			);
-		});
 	});
 };
