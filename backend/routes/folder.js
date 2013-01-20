@@ -7,6 +7,9 @@ var MongoClient = require('mongodb').MongoClient,
 var collectionName = "folder";
 var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
 
+/**
+ * Insertion of folder
+ */
 var insertFolder = function(res,mongoclient, dataBase, name, private,hash){
 	dataBase.collection(collectionName).insert({
 			name 	: name,
@@ -79,11 +82,14 @@ var insertFolder = function(res,mongoclient, dataBase, name, private,hash){
 	});
 }
 
+/**
+ * Remove _id field from folder
+ */
 var filtreResult = function(input){
-	if(input.toString()== '[object Object]'){
+	if(input.toString() == '[object Object]'){
 		delete input._id;
 	}else{
-		for(var i=0; i<input.length;i++){
+		for(var i=0; i<input.length;i++){ //Array
 			filtreResult(input[i]);
 		}
 	}
@@ -92,6 +98,10 @@ var filtreResult = function(input){
 
 /**
  * Folder controller
+ */
+
+/**
+ * List folder
  */
 exports.list = function(req, res){
 
@@ -117,8 +127,10 @@ exports.list = function(req, res){
 			mongoclient.close();
 		});
 	});
-
 };
+/**
+ * Get folder
+ */
 exports.get = function(req, res, hash){
 
 	mongoclient.open(function(err, mongoclient){
@@ -157,6 +169,9 @@ exports.get = function(req, res, hash){
 	});
 	
 };
+/**
+ * Update folder
+ */
 exports.put = function(req, res, id){
 	res.respond("Not Yet Implemented",501);
 
@@ -208,6 +223,9 @@ exports.put = function(req, res, id){
 	});
 
 };
+/**
+ * Post folder
+ */
 exports.post = function(req, res){
 
 	if(req.body.name == null || req.body.name == ""){
