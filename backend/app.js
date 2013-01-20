@@ -4,13 +4,18 @@
  */
 
 require('./response');
+var fs = require('fs');
 var CONFIG = require('config').YopnoteAPI;
 
 var express = require('express')
   , app = module.exports = express()
 
+var date = new Date();
+var logFile = fs.createWriteStream('./log/access.'+date.getFullYear()+"."+(1+date.getMonth())+"."+date.getDate()+'.log', {flags: 'a'});
+
 app.configure(function(){
-  app.use(express.logger('dev'));
+  app.use(express.logger({stream: logFile}));
+//  app.use(express.logger('dev'));
   app.use(express.compress());
   app.use(app.router);
 
