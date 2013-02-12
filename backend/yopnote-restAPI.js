@@ -23,7 +23,7 @@ module.exports = function () {
 	});
 
 	app.configure('production', function () {
-		app.use(m.errorHandler());
+		app.use(m.errorHandler({}));
 	});
 
 	//Routing
