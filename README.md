@@ -5,9 +5,9 @@ Projet yopnote
 
 ## Installation ##
 
-git clone -b backend git://github.com/yopnote/yopnote.git
-cd backend
-npm install
+`git clone -b backend git://github.com/yopnote/yopnote.git  
+cd backend  
+npm install`
 
 ## Configuration ##
 
@@ -18,5 +18,5 @@ Copier default.yaml et modifier les informations correspondant à votre environn
 
 ## Lancement du backend ##
 
-cd backend
-npm start
+`cd backend  
+npm start`
