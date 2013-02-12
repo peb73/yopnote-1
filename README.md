@@ -11,7 +11,7 @@ npm install
 
 ## Configuration ##
 
-‘export NODE_ENV=production‘
+´export NODE_ENV=production´
 
 Créer le fichier config/production.yaml
 Copier default.yaml et modifier les informations correspondant à votre environnement de production.
