@@ -1,5 +1,5 @@
 app.collections.Folders = Backbone.Collection.extend({
-	model: app.models.ModelExample,
+	model: app.models.Folder,
 	url: app.REST_BASE_URL + '/folder'
 });
 
