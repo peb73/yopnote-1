@@ -34,7 +34,6 @@
 <script language="Javascript" src="javascripts/app.js"></script>
 <script language="Javascript" src="javascripts/helpers.js"></script>
 <script language="Javascript" src="javascripts/Router.js"></script>
-<script language="Javascript" src="javascripts/helpers/*"></script>
 <script language="Javascript" src="javascripts/models/Folder.js"></script>
 <script language="Javascript" src="javascripts/models/Note.js"></script>
 <script language="javascript" src="javascripts/collections/Folders.js"></script>
@@ -102,6 +101,9 @@
 </script>
 <script id="template_PublicFolderList" type="text/html">
 <ul>
+    {{#collection}}
+    <li>{{attributes.title}}</li>
+    {{/collection}}
     <li>chocolat</li>
     <li>mariage</li>
     <li>hotel</li>
