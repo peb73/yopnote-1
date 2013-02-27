@@ -27,8 +27,7 @@ app.views.PublicFolderList.prototype.events = {
 
 app.views.PublicFolderList.prototype.render = function()
 {
-    console.log("plop")
-    console.log("plop",this.collection.toArray());
+    
 	this.$el.html('template_PublicFolderList', {collection: this.collection.toArray()});
     
     return this;
