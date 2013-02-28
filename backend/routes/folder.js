@@ -5,79 +5,113 @@ var MongoClient = require('mongodb').MongoClient,
 	utils 		= require('../util');
 
 var collectionName = "folder";
-var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
+
+
+var openMongoclient = function(action){
+
+	var mongoclient = new MongoClient(new Server(CONFIG.dbHost, CONFIG.dbPort, {native_parser: true}));
+	mongoclient.open(function(err, thisMongoclient){
+		if(err!=null){
+			res.respond(err,500);
+			if (thisMongoclient!=null)
+				thisMongoclient.close();
+			return;
+		}
+		
+		//the action should close the connection
+		action(thisMongoclient);
+	});
+}
+
+//init counter
+var initCounter = function(counterName){
+	openMongoclient(function(thisMongoclient){
+		utils.initCounter(thisMongoclient, CONFIG.dbName, counterName);
+	});
+}
+
+initCounter("folderId");
+
 
 /**
  * Insertion of folder
  */
 var insertFolder = function(res,mongoclient, dataBase, name, private,hash){
-	dataBase.collection(collectionName).insert({
+
+	utils.getNextSequence(dataBase,"folderId",function(id){
+
+		dataBase.collection(collectionName).insert({
 			name 	: name,
-			private : private
+			private : private,
+			date	: new Date(),
+			_id	: id
 		},function(err,result){
 			if(err!=null){
 				res.respond(err,500);
 				mongoclient.close();
 				return;
-		}
-
-		var tmpId = result._id;
-		if(hash==null)
-			hash = utils.getHash(tmpId);
-
-		//Test to know id the hash has not been ever use.
-		dataBase.collection(collectionName).findOne({hash: hash},function(err,doc){
-
-			//Error
-			if(err!=null){
-				res.respond(err,500);
-				mongoclient.close();
-				return;
 			}
 
-			//No result
-			if(doc==null){
+			var tmpId = result[0]._id;
+			console.log("result",result);
+			console.log("tmp",tmpId);
+			if(hash==null)
+				hash = utils.getHash(tmpId);
 
-				//keep this id
-				dataBase.collection(collectionName).update(
-					result[0],
-					{
-						$set:{hash:hash}
-					},
-					function(err,count){
+				//Test to know id the hash has not been ever use.
+				dataBase.collection(collectionName).findOne({hash: hash},function(err,doc){
 
-						if(err!=null){
-							res.respond(err,500);
+				//Error
+				if(err!=null){
+					res.respond(err,500);
+					mongoclient.close();
+					return;
+				}
+
+				//No result
+				if(doc==null){
+
+					//keep this id
+					dataBase.collection(collectionName).update(
+						result[0],
+						{
+							$set:{hash:hash}
+						},
+						function(err,count){
+
+							if(err!=null){
+								res.respond(err,500);
+								mongoclient.close();
+								return;
+							}
+
+							result[0].hash = hash;
+							res.json(filtreResult(result[0]));
+
 							mongoclient.close();
-							return;
 						}
+					);
+				}else{
+					//change the id
 
-						result[0].hash = hash;
-						res.json(filtreResult(result[0]));
+					//clean old id
+					dataBase.collection(collectionName).remove(
+						{
+							_id: tmpId
+						},
+						function(result,err){
+	
+							if(err!=null){
+								res.respond(err,500);
+								mongoclient.close();
+								return;
+							}
 
-						mongoclient.close();
-					}
-				);
-			}else{
-				//change the id
-
-				//clean old id
-				dataBase.collection(collectionName).remove(
-					{
-						_id: tmpId
-					},
-					function(result,err){
-
-						if(err!=null){
-							res.respond(err,500);
-							mongoclient.close();
-							return;
+							insertFolder(res,mongoclient, dataBase, name, private,hash);
 						}
-
-						insertFolder(res,mongoclient, dataBase, name, private,hash);
-					}
-				);
-			}
+					);
+				}
+			});
 		});
 	});
 }
@@ -105,26 +139,20 @@ var filtreResult = function(input){
  */
 exports.list = function(req, res){
 
-	mongoclient.open(function(err, mongoclient){
-		
-		if(err!=null){
-			res.respond(err,500);
-			if (mongoclient!=null)
-				mongoclient.close();
-			return;
-		}
-
-		var dataBase = mongoclient.db(CONFIG.dbName);
-		dataBase.collection(collectionName).find().toArray(function(err, docs){
+	openMongoclient(function(thisMongoclient){
+		var dataBase = thisMongoclient.db(CONFIG.dbName);
+		dataBase.collection(collectionName).find({},{
+			"sort":[["date","desc"]]
+		}).toArray(function(err, docs){
 		
 			if(err!=null){
 				res.respond(err,500);
-				mongoclient.close();
+				thisMongoclient.close();
 				return;
 			}
 
 			res.json(filtreResult(docs));
-			mongoclient.close();
+			thisMongoclient.close();
 		});
 	});
 };
@@ -133,14 +161,7 @@ exports.list = function(req, res){
  */
 exports.get = function(req, res, hash){
 
-	mongoclient.open(function(err, mongoclient){
-
-		if(err!=null){
-			res.respond(err,500);
-			if (mongoclient!=null)
-				mongoclient.close();
-			return;
-		}
+	openMongoclient(function(mongoclient){
 
 		var dataBase = mongoclient.db(CONFIG.dbName);
 		dataBase.collection(collectionName).findOne({hash: hash},function(err,doc){
@@ -191,14 +212,7 @@ exports.put = function(req, res, id){
 	}
 	var name = req.body.name;
 
-	mogoclient.open(function(err,mongoclient){
-		if(err!=null){
-			res.respond(err,500);
-			if (mongoclient!=null)
-				mongoclient.close();
-			return;
-		}
-
+	openMongoclient(function(mongoclient){
 		var dataBase = mongoclient.db(CONFIG.dbName);
 		dataBase.collection(collectionName).update(
 			{_id: id},
@@ -239,15 +253,7 @@ exports.post = function(req, res){
 
 	var name = req.body.name;
 
-	//TODO id incrementation
-	mongoclient.open(function(err, mongoclient){
-		if(err!=null){
-			res.respond(err,500);
-			if (mongoclient!=null)
-				mongoclient.close();
-			return;
-		}
-
+	openMongoclient(function(mongoclient){
 		var dataBase = mongoclient.db(CONFIG.dbName);
 		var hash = null;
 

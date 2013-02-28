@@ -39,6 +39,9 @@ app.use('/backend', app.bookmarks_app = require('./backend/yopnote-restAPI')());
 app.get('/', function(req, res){
   res.render('index', { title: "plop" });
 });
+app.get('/:hash',function(req, rest, next){
+	console.log(req.params.hash);
+});
 /*
 app.use('/', function(req, res){
   res.render('index', { title: "plop" });

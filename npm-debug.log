@@ -1,0 +1,38 @@
+info it worked if it ends with ok
+verbose cli [ '/usr/bin/nodejs', '/usr/bin/npm', 'start' ]
+info using npm@1.1.4
+info using node@v0.6.19
+verbose config file /home/pi/.npmrc
+verbose config file /usr/etc/npmrc
+verbose config file /usr/share/npm/npmrc
+verbose caching /home/pi/www/yopnote/package.json
+verbose loadDefaults YopNote@0.0.1
+verbose run-script [ 'prestart', 'start', 'poststart' ]
+info prestart YopNote@0.0.1
+info start YopNote@0.0.1
+verbose unsafe-perm in lifecycle true
+silly exec sh "-c" "node app"
+silly spawning [ 'sh', [ '-c', 'node app' ], '/home/pi/www/yopnote' ]
+info YopNote@0.0.1 Failed to exec start script
+ERR! YopNote@0.0.1 start: `node app`
+ERR! `sh "-c" "node app"` failed with 1
+ERR! 
+ERR! Failed at the YopNote@0.0.1 start script.
+ERR! This is most likely a problem with the YopNote package,
+ERR! not with npm itself.
+ERR! Tell the author that this fails on your system:
+ERR!     node app
+ERR! You can get their info via:
+ERR!     npm owner ls YopNote
+ERR! There is likely additional logging output above.
+ERR! 
+ERR! System Linux 3.2.27+
+ERR! command "/usr/bin/nodejs" "/usr/bin/npm" "start"
+ERR! cwd /home/pi/www/yopnote
+ERR! node -v v0.6.19
+ERR! npm -v 1.1.4
+ERR! code ELIFECYCLE
+ERR! message YopNote@0.0.1 start: `node app`
+ERR! message `sh "-c" "node app"` failed with 1
+ERR! errno {}
+verbose exit [ 1, true ]

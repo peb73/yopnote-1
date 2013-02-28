@@ -7,19 +7,7 @@ app.Router = Backbone.Router.extend();
 app.Router.prototype.initialize = function()
 {
     console.log(":: init app.Router");
-};
-
-app.Router.prototype.routes = {
-    '' :                  'default',
-    'notes/:hash' :         'showNotesFromAFolder'
-};
-
-// ----------------------------------
-// Routes
-// ----------------------------------
-
-app.Router.prototype.default = function()
-{
+    
     new app.views.Default({
         el: $('body')
     });
@@ -32,50 +20,42 @@ app.Router.prototype.default = function()
             });
         },
         error: function(m, e) {
-            new app.views.Modal(e);
+            //new app.views.Modal(e);
+            alert('erreur folders');
         }
     });
 };
 
-app.Router.prototype.folders = null
+app.Router.prototype.routes = {
+    'folder/:hash' :         'showNotesFromAFolder'
+};
 
-app.Router.prototype.showFolders = function(search)
+// ----------------------------------
+// Routes
+// ----------------------------------
+
+app.Router.prototype.default = function()
 {
-    var that = this;
-    if (this.folders)
-        this.folders = undelegateEvents();
+    $('#row-1 input').focus();   
+}
 
-    (new app.collections.Folders()).fetch({
-        success: function(collection) {
-            this.folders = new app.views.PublicFolderList({
-                el: $('#row-2'),
-                collection: collection
-            });
-        },
-        error: function(m, e) {
-            new app.views.Modal(e);
-        }
-    });
-};
-
-
-app.Router.prototype.notes = null;
+app.Router.prototype.folder = null;
 
 app.Router.prototype.showNotesFromAFolder = function(hash)
 {
-    var that = this;
-    if (this.notes)
-        this.notes = undelegateEvents();
+    if (this.folder)
+        this.folder.undelegateEvents();
 
-    (new app.collections.Notes({}, {id: hash})).fetch({
-        success: function(collection) {
-            this.notes = new app.views.Folder({
+    (new app.models.Folder({'id': hash})).fetch({
+        success: function(model) {
+            app.Router.prototype.folder = new app.views.Folder({
                 el: $('#row-3'),
-                collection: collection
+                model: model
             });
         },
         error: function(m, e) {
-            new app.views.Modal(e);
+            //new app.views.Modal(e);
+    	    alert('erreur folder');
         }
     });
 };

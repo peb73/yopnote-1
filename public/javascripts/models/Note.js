@@ -1,5 +1,7 @@
 app.models.Note = Backbone.Model.extend({
-	urlRoot: app.REST_BASE_URL + '/note'
+	url: function() {
+        return app.REST_BASE_URL + '/folder/' + this.hash + '/note';
+    }
 });
 
 // ----------------------------------
@@ -8,7 +10,7 @@ app.models.Note = Backbone.Model.extend({
 
 app.models.Note.prototype.initialize = function(attributes, options)
 {
-    
+    this.hash = options.hash;
 };
 
 // ----------------------------------

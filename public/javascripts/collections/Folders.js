@@ -1,6 +1,6 @@
 app.collections.Folders = Backbone.Collection.extend({
-	model: app.models.Folder,
-	url: app.REST_BASE_URL + '/folder'
+    model: app.models.Folder,
+    url: app.REST_BASE_URL + '/folder/'
 });
 
 // ----------------------------------
@@ -9,7 +9,7 @@ app.collections.Folders = Backbone.Collection.extend({
 
 app.collections.Folders.prototype.initialize = function(models, options)
 {
-    
+
 };
 
 // ----------------------------------

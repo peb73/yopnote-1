@@ -10,7 +10,10 @@ body {
   max-width: 500px;
 }
 .container-narrow > hr {
-  margin: 30px 0;
+  margin: 10px 0;
+  height: 1px;
+  border: none;
+  background: #DDD;
 }
 
 .masthead {
@@ -20,7 +23,8 @@ body {
   margin-bottom: 20px;
 }
 
-.row-1 {
+.row {
+  border: thin solid #ddd;
   margin-bottom: 30px;
 }
 .row-1 input {
@@ -42,7 +46,8 @@ body {
   height: 100px;
   overflow: hidden;
 }
-.row-2:hover {
+/*.row-2:hover {*/
+.row-2 {
   overflow: auto;
 }
 .row-2 ul {
@@ -61,24 +66,29 @@ body {
   padding: 2px 0 2px 5px;
   color: #333;
 }
-.row-2 li:hover {
+.row-2 li:nth-child(odd) {
+  /*background: #f1f1f1;*/
+}
+.row-2 li:hover,
+.row-2 li.selected {
   border: none;
   outline: none;
   background: #dedede;
   cursor: pointer;
 }
-
-.row-2-detail {
-  color: #999;
+.row-2 li small {
+  color: #777;
   font-size: 0.7em;
-  margin-bottom: 25px;
   visibility: hidden;
 }
-.row-2-detail.show {
+.row-2 li:hover small {
   visibility: visible;
 }
 
 
+.row-3 {
+  border: none;
+}
 .row-3 h3 {
   padding: 0 5px;
   margin: 0;
@@ -91,10 +101,6 @@ body {
   margin: 0;
   padding: 5px;
   color: #333;
-  visibility: hidden;
-}
-.row-3:hover input {
-  visibility: visible;
 }
 .row-3 input:focus {
   background: #dedede;
@@ -108,6 +114,11 @@ body {
   padding: 0;
   color: #333;
   list-style: none;
+}
+.row-3 ul:empty:after {
+  content: 'aucune note !';
+  margin: 20px 0;
+  color: #aaa;
 }
 .row-3 li {
   border: none;

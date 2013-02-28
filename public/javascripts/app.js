@@ -22,6 +22,7 @@ app.BASE_URL = '/';
 // url du service rest
 app.REST_BASE_URL = '/backend';
 
+
 // ----------------------------------
 // Lancement (main)
 // ----------------------------------

@@ -14,7 +14,6 @@ function getHash(id){
 };
 
 function getNextSequence(db,name,callback) {
-	console.log(name);
    	db.collection("counters").findAndModify(
           { _id: name },
           {},
@@ -22,12 +21,38 @@ function getNextSequence(db,name,callback) {
           {new: true},
             function(err, ret){
             	callback(ret.seq);
-//            	return ret.seq;
             }
    );
+}
 
-   
+function initCounter(thisMongoclient,dbName,counterName){
+	var dataBase = thisMongoclient.db(dbName);
+	dataBase.collection("counters").find({
+		_id: counterName
+	}).toArray(function(err, docs){
+
+		if(err!=null){
+			res.respond(err,500);
+			thisMongoclient.close();
+			return;
+		}
+
+		if(docs == null || docs.length==0){
+			//create counter
+			dataBase.collection("counters").insert({
+				_id     : counterName,
+				seq     : 0
+			},function(err,result){
+				thisMongoclient.close();
+				//rien
+			});
+			return;
+		}
+
+		thisMongoclient.close();
+	});
 }
 
 exports.getHash = getHash;
 exports.getNextSequence = getNextSequence;
+exports.initCounter = initCounter;

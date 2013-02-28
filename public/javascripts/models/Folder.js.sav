@@ -1,5 +1,7 @@
 app.models.Folder = Backbone.Model.extend({
-	urlRoot: app.REST_BASE_URL + '/folder',
+	url: function() {
+        return app.REST_BASE_URL + '/folder/' + this.hash;
+    }
 });
 
 // ----------------------------------
@@ -8,7 +10,7 @@ app.models.Folder = Backbone.Model.extend({
 
 app.models.Folder.prototype.initialize = function(attributes, options)
 {
-
+    this.hash = options.hash;
 };
 
 // ----------------------------------

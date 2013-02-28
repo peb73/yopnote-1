@@ -1,6 +1,8 @@
 app.collections.Notes = Backbone.Collection.extend({
-	model: app.models.Note,
-	url: app.REST_BASE_URL + '/note'
+    model: app.models.Note,
+    url: function() {
+        return app.REST_BASE_URL + '/folder/' + this.hash + '/note';
+    }
 });
 
 // ----------------------------------
@@ -9,7 +11,7 @@ app.collections.Notes = Backbone.Collection.extend({
 
 app.collections.Notes.prototype.initialize = function(models, options)
 {
-    
+    this.hash = options.hash;
 };
 
 // ----------------------------------

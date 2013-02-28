@@ -44,7 +44,7 @@ module.exports = function () {
 	});
 	app.post('/folder/:hash/note', function(req, res, next){
 	  var hash = req.params.hash;
-	  note.get(req,res,hash);
+	  note.post(req,res,hash);
 	});
 
 	return app;
